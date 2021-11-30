@@ -1,0 +1,48 @@
+name: "$(PipelineName)_$(Date:yyyyMMdd)_1.0.0$(Rev:.r)"
+
+trigger: none 
+
+parameters:
+  - name: ParameterFileLocation
+    displayName: Parameter File location (in format your_environment/required_file.json)
+    type: string
+
+variables:
+  - name: ParameterFileLocation
+    value: ${{ parameters.ParameterFileLocation }}
+  - name: adminPassword
+    value: "win-localadmin"
+  - name: PipelineName
+    value: $[replace('${{ parameters.ParameterFileLocation }}', '/', '_')]
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: PowerShell@2
+    name: RunBicepLinter
+    displayName: Run Bicep Linter
+    enabled: true
+    inputs:
+      targetType: "inline"
+      script: |
+        $template = Get-Content -Raw ./modules/virtualMachine_sa.bicep
+        $ParameterFileLocation = '../parameters/' + '$(ParameterFileLocation)'
+        $template -replace "parametersFile", "$ParameterFileLocation" | Out-File -FilePath ./modules/virtualMachine_sa.bicep
+        az bicep build --file ./modules/virtualMachine_sa.bicep
+
+  - task: AzureCLI@2
+    name: DeployBicepFile
+    displayName: Deploy Bicep file
+    inputs:
+      azureSubscription: $(subscription)
+      scriptType: "pscore"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        $variables = (Get-Content ./parameters/$(ParameterFileLocation) | ConvertFrom-Json)
+        $adminPassword = az keyvault secret show --name $variables.keyVaultSecretName --vault-name $variables.keyVaultName --query value --output tsv
+        $template = Get-Content -Raw ./modules/virtualMachine_sa.bicep
+        $ParameterFileLocation = '../parameters/' + '$(ParameterFileLocation)'
+        $template -replace "parametersFile", "$ParameterFileLocation" | Out-File -FilePath ./modules/virtualMachine_sa.bicep
+        az deployment group create --resource-group $variables.ResourceGroup --name '$(Build.BuildNumber)' --template-file ./modules/virtualMachine_sa.bicep --parameters adminPassword=$adminPassword
+      workingDirectory: "$(system.defaultWorkingDirectory)"

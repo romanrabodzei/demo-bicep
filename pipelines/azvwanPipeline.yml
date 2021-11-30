@@ -1,0 +1,79 @@
+name: '1.0.0$(Rev:.r)'
+
+trigger: none
+
+variables:
+  - group: "AZ Virtual Wan Infrastructure"
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Lint
+  jobs:
+  - job: LintCode
+    displayName: Lint code
+    steps:
+      - script: |
+          az bicep build --file azvwan.bicep
+        name: LintBicepCode
+        displayName: Run Bicep linter
+        enabled: true
+
+- stage: Validate
+  jobs: 
+  - job: ValidateBicepCode
+    displayName: Validate Bicep code
+    steps:
+      - task: AzureCLI@2
+        name: RunPreflightValidation
+        displayName: Run preflight validation
+        enabled: true
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment sub validate --name '$(Build.BuildNumber)' --location 'WestEurope' --template-file ./azvwan.bicep
+          workingDirectory: "$(system.defaultWorkingDirectory)"
+
+- stage: Preview
+  jobs: 
+  - job: PreviewAzureChanges
+    displayName: Preview Azure changes
+    steps:
+      - task: AzureCLI@2
+        name: RunWhatIf
+        displayName: Run what-if
+        enabled: true
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment sub what-if --name '$(Build.BuildNumber)' --location 'WestEurope' --template-file ./azvwan.bicep
+          workingDirectory: "$(system.defaultWorkingDirectory)"
+
+- stage: Deploy
+  jobs:
+  - deployment: Deploy
+    environment: vWan
+    displayName: Deploy Prod vWan
+    timeoutInMinutes: 0
+    cancelTimeoutInMinutes: 360
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - task: AzureCLI@2
+              name: DeployBicepFile
+              displayName: Deploy Bicep file
+              enabled: true
+              inputs:
+                azureSubscription: $(subscription)
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  az deployment sub create --name '$(Build.BuildNumber)' --location 'WestEurope' --template-file ./azvwan.bicep
+                workingDirectory: "$(system.defaultWorkingDirectory)"

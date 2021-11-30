@@ -1,0 +1,20 @@
+{
+    "ResourceGroup":  "AzureVMRG",
+    "Region":  "CanadaCentral",
+    "VMName":  "azdevvm01",
+    "VmSize":  "Standard_B1ms",
+    "DataDiskSize":  256,
+    "DataDiskType":  "StandardSSD_LRS",
+    "imagePublisher":  "MicrosoftWindowsServer",
+    "imageOffer":  "WindowsServer",
+    "imageSku":  "2016-Datacenter",
+    "adminUsername":  "azureadmin",
+    "keyVaultResourceGroup":  "GeneralRG",
+    "keyVaultName":  "htc-kv-gen-001",
+    "keyVaultSecretName":  "win-localadmin",
+    "VnetResourceGroup":  "GeneralRG",
+    "VnetName":  "htc-vnet-gen-001",
+    "SubnetName":  "ServerSubnet",
+    "workspaceResourceGroup":  "GeneralRG",
+    "workspaceName":  "htc-law-gen-001"
+}

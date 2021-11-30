@@ -1,0 +1,39 @@
+{
+    "resourceGroupName": "AzurevWanRG",
+    "resourceLocations": [
+        "WestEurope",
+        "EastUS"
+    ],
+    "virtualNetworkNameEastUS": "vnet-eastus",
+    "virtualNetworkAddressPrefixEastUS": "172.24.0.0/16",
+    "virtualNetworkSubnetNameEastUS01": "subnet1",
+    "virtualNetworkSubnetPrefixEastUS01": "172.24.1.0/24",
+    "virtualNetworkSubnetNameEastUS02": "subnet2",
+    "virtualNetworkSubnetPrefixEastUS02": "172.24.2.0/24",
+    
+    "virtualNetworkNameWestEu": "vnet-westeu",
+
+    "virtualWanName": "az-vwan",
+
+    "virtualHubNameWestEU": "az-vwan-hub-westeu",
+    "virtualHubAddressPrefixWestEU": "172.21.0.0/16",
+    "virtualHubNameEastUS": "az-vwan-hub-eastus",
+    "virtualHubAddressPrefixEastUS": "172.22.0.0/16",
+
+
+    "VMResourceGroup":  "AzureVMRG",
+    "Region":  "EastUS",
+    "VMName":  "azprdvm01",
+    "VmSize":  "Standard_B1ms",
+    "DataDiskSize":  256,
+    "DataDiskType":  "StandardSSD_LRS",
+    "imagePublisher":  "MicrosoftWindowsServer",
+    "imageOffer":  "WindowsServer",
+    "imageSku":  "2016-Datacenter",
+    "adminUsername":  "azureadmin",
+    "keyVaultName":  "htc-kv-gen-001",
+    "keyVaultSecretName":  "win-localadmin",
+    "keyVaultResourceGroup":  "GeneralRG",
+    "workspaceName":  "htc-law-gen-001",
+    "workspaceResourceGroup":  "GeneralRG"
+}
